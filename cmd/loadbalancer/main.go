@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	configName := flag.String("config", "config.yaml", "config filename for loadbalancer")
+	configName := flag.String("config", "./configs/loadbalancer.yaml", "config filename for loadbalancer")
 	logFormat := flag.String("log-format", "text", "set on of [text, json] logger format")
 	logLevel := flag.String("log-level", "info", "include [debug, info, warn, error] logs. Each logging level automatically includes stricter levels")
 
@@ -33,7 +33,7 @@ func main() {
 	l.Info("logger was initialized", slog.String("format", *logFormat), slog.String("level", *logLevel))
 
 	// load config
-	cfg, err := config.LoadConfig(*configName)
+	cfg, err := config.LoadConfigLoadBalancer(*configName)
 	if err != nil {
 		l.Error(err.Error())
 		return

@@ -1,0 +1,5 @@
+port: 8080
+token_port: 9000
+migration_dir: "./migrations"
+default_capacity: 2
+interval: 20s

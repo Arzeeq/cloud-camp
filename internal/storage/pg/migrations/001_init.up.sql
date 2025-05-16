@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS token_buckets (
+    token VARCHAR(255) PRIMARY KEY,
+    capacity INTEGER NOT NULL
+);

@@ -21,8 +21,8 @@ type RateLimiter struct {
 	l *slog.Logger
 }
 
-func New(b Bucketer, l *slog.Logger) (*RateLimiter, error) {
-	return &RateLimiter{b: b, l: l}, nil
+func New(b Bucketer, l *slog.Logger) *RateLimiter {
+	return &RateLimiter{b: b, l: l}
 }
 
 func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {

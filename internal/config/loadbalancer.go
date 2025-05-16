@@ -9,20 +9,20 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Config struct {
+type LoadBalancer struct {
 	Port                int           `yaml:"port"`
 	Algorithm           pool.Algo     `yaml:"algorithm"`
 	HealthCheckInterval time.Duration `yaml:"health_check_interval"`
 	Servers             []string      `yaml:"servers"`
 }
 
-func LoadConfig(filename string) (*Config, error) {
+func LoadConfigLoadBalancer(filename string) (*LoadBalancer, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %w", err)
 	}
 
-	var cfg Config
+	var cfg LoadBalancer
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}

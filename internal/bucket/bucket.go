@@ -5,21 +5,27 @@ import (
 	"time"
 )
 
-type Bucket struct {
-	capacity   int
-	tokens     map[string]int
-	lastAccess map[string]time.Time
-	mutex      sync.Mutex
-	ticker     *time.Ticker
-	done       chan struct{}
+type TokenServicer interface {
+	GetCapacity(token string) (int, error)
 }
 
-func New(capacity int, interval time.Duration) *Bucket {
+type Bucket struct {
+	defaultCapacity int
+	tokens          map[string]int
+	lastAccess      map[string]time.Time
+	mutex           sync.Mutex
+	ticker          *time.Ticker
+	done            chan struct{}
+	tokenService    TokenServicer
+}
+
+func New(defaultCapacity int, interval time.Duration, tokenService TokenServicer) *Bucket {
 	b := &Bucket{
-		capacity:   capacity,
-		tokens:     make(map[string]int),
-		lastAccess: make(map[string]time.Time),
-		done:       make(chan struct{}),
+		defaultCapacity: defaultCapacity,
+		tokens:          make(map[string]int),
+		lastAccess:      make(map[string]time.Time),
+		done:            make(chan struct{}),
+		tokenService:    tokenService,
 	}
 
 	b.ticker = time.NewTicker(interval)
@@ -38,8 +44,14 @@ func (b *Bucket) refill() {
 				if time.Since(b.lastAccess[key]) > time.Hour {
 					delete(b.tokens, key)
 					delete(b.lastAccess, key)
+					continue
+				}
+
+				capacity, err := b.tokenService.GetCapacity(key)
+				if err != nil {
+					b.tokens[key] = b.defaultCapacity
 				} else {
-					b.tokens[key] = b.capacity
+					b.tokens[key] = capacity
 				}
 			}
 
@@ -55,11 +67,17 @@ func (b *Bucket) Take(token string) bool {
 	defer b.mutex.Unlock()
 
 	if _, ok := b.tokens[token]; !ok {
-		b.tokens[token] = b.capacity
+		capacity, err := b.tokenService.GetCapacity(token)
+		if err != nil {
+			b.tokens[token] = b.defaultCapacity
+		} else {
+			b.tokens[token] = capacity
+		}
 	}
 
 	if b.tokens[token] > 0 {
 		b.tokens[token]--
+		b.lastAccess[token] = time.Now()
 		return true
 	}
 	return false
