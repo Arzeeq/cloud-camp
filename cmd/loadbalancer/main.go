@@ -11,11 +11,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Arzeeq/cloud-camp/internal/config"
 	"github.com/Arzeeq/cloud-camp/internal/healthcheck"
 	"github.com/Arzeeq/cloud-camp/internal/loadbalancer"
-	"github.com/Arzeeq/cloud-camp/internal/loadbalancer/config"
-	"github.com/Arzeeq/cloud-camp/internal/loadbalancer/pool"
 	"github.com/Arzeeq/cloud-camp/internal/logger"
+	"github.com/Arzeeq/cloud-camp/internal/pool"
 )
 
 func main() {
